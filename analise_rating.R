@@ -10,6 +10,9 @@ library(readxl)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
+library(caret)
+install.packages("gbm")
+library(gbm)
 # Load the data into a dataframe
 df <- read_excel("base de dados/archive/Pasta11.xlsx", 
                       col_types = c("text", "text", "text", 
@@ -29,10 +32,9 @@ df$`ebit por receita`
 prop.table(table(df$setor))
 
 #teste de algoritmo - preparando as amostras de treino.
-set.seed(1234)
+set.seed(16031976)
 amostra <- sample(1:nrow(df), nrow(df) * 0.7, replace = FALSE)
 dados_treino <- df[amostra, ]
 dados_treino$classificação <- as.factor(dados_treino$classificação)
 dados_teste <- df[-amostra, ]
 dados_teste$classificação <- as.factor(dados_teste$classificação)
-
