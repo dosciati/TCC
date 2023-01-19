@@ -104,13 +104,17 @@ dados_teste$classificacao <- as.factor(dados_teste$classificacao)
 pruneControl = rpart.control(minsplit = 1, minbucket = 5)
 mod_arvores = rpart(classificacao ~ ., data = dados_treino, control = pruneControl)
 
+classificacoes_arvores <- predict(mod_arvores, dados_teste[, -1])
+classificacoes_arvores <- as.data.frame(classificacoes_arvores)
+classificacoes_arvores["classificacao"] <- ifelse(classificacoes_arvores >= 0.5, 1, 0)
+
 # Visualização da árvore de decisão
 
 prp(mod_arvores)                   
 mod_arvores
 #matriz de confusão
-mc_arvores <- confusionMatrix(as.factor(classificacoes_arvores$class[,1]), 
-as.factor(dados_teste[,1]), positive = "1", mode = "prec_recall")
+mc_arvores <- confusionMatrix(as.factor(classificacoes_arvores$class[,2]), 
+as.factor(dados_treino[,1]), positive = "1", mode = "prec_recall")
 
 mc_arvores$table
 classificacoes_arvores  
@@ -119,9 +123,10 @@ classificacoes_arvores
 #ntree: número de árvores
 
 mod_rf <- randomForest(as.factor(classificacao) ~ ., data = dados_treino, ntree = 101)
-classificacoes_rf <- predict(mod_rf, dados_teste[, -1])
-mc_rf <- confusionMatrix(classificacoes_rf, as.factor(dados_teste[, 1]), positive = "1", 
+
+classificacoes_rf <- predict(mod_rf, dados_treino[, -1])
+mc_rf <- confusionMatrix(classificacoes_rf, as.factor(dados_treino[, 1]), positive = "1", 
                          mode = "prec_recall")
 mc_rf$table
-
-    
+dim(classificacoes_rf)
+dim(dados_teste)
