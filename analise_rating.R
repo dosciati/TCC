@@ -20,6 +20,7 @@ library(adabag)
 library(rpart)
 library(rpart.plot)
 library(randomForest)
+
 # Load the data into a dataframe
 df <- read_excel("base de dados/archive/Pasta11.xlsx", 
                       col_types = c("text", "text", "text", 
@@ -32,6 +33,15 @@ df <- read_excel("base de dados/archive/Pasta11.xlsx",
                                      "numeric", "numeric", "numeric", 
                                      "numeric", "numeric", "numeric", 
                                      "numeric", "numeric", "numeric"))
+
+head(df)
+names(df)
+glimpse(df)
+str(df)
+df$classificação
+df$setor
+df$`ebit por receita`
+
 
 df_nova<-df[,-c(2,3,4,5,6)]#selecionar colunas que ficam.
 prop.table(table(df$classificação))
@@ -47,7 +57,7 @@ DfN1 <- mutate(df_nova,
                         classificação = replace(classificação, classificação=="CC", 'Highest Risk'),
                         classificação = replace(classificação, classificação=="CCC", 'Highest Risk'),
                        classificação = replace(classificação, classificação=="D", 'In Default'))
-DfN1<- rename(DfN1, classificacao = classificação)
+DfN1<- rename(DfN1, classificacao = 'classificação')
 DfN1<-rename(DfN1, relacaoatual = 'relação atual')
 DfN1<-rename(DfN1, relacaixa = 'relação do caixa')
 DfN1<-rename(DfN1, proprapida = 'proporção rápida')
@@ -98,13 +108,8 @@ mod_arvores = rpart(classificacao ~ ., data = dados_treino, control = pruneContr
 
 prp(mod_arvores)                   
 mod_arvores
-
-classificacoes_arvores <- predict(mod_arvores, dados_teste[, -1])
-classificacoes_arvores <- as.data.frame(classificacoes_arvores)
-classificacoes_arvores["class"] <- ifelse(classificacoes_arvores >= 0.5, 1, 0)  
-print(classificacoes_arvores)
 #matriz de confusão
-mc_arvores <- confusionMatrix(as.factor(classificacoes_arvores$class[,6]), 
+mc_arvores <- confusionMatrix(as.factor(classificacoes_arvores$class[,1]), 
 as.factor(dados_teste[,1]), positive = "1", mode = "prec_recall")
 
 mc_arvores$table
@@ -118,3 +123,5 @@ classificacoes_rf <- predict(mod_rf, dados_teste[, -1])
 mc_rf <- confusionMatrix(classificacoes_rf, as.factor(dados_teste[, 1]), positive = "1", 
                          mode = "prec_recall")
 mc_rf$table
+
+    
