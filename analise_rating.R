@@ -15,13 +15,28 @@ library(gbm)
 library(rpart)
 library(rpart.plot)
 library(randomForest)
+library(ggplot2)
 
 #Load the data into a dataframe
 df<-read_excel("base de dados/archive/Pasta12.xlsx")
 
 #convert all columns except the first one to numeric
 df[,-1] <- lapply(df[,-1], as.numeric)
-prop.table(table(df$classificacao))
+prop<-prop.table(table(df$classificacao))
+print(prop)
+#----
+#grafico de barras com indicdes Mody´s
+indice <- reorder(df$classificacao, 
+                            df$classificacao, function(x) -length(x))
+barplot(table(indice), 
+        main="Contagem de classificação por tipo", 
+        xlab="Indice de Risco", 
+        ylab="Contagem", 
+        col=c("blue","green","yellow","orange","red"),
+        xaxt = "n",
+        names.arg = levels(indice))
+axis(1, at = 1:length(levels(indice)), labels = levels(indice))
+
 #----------------------------
 #Dicionário de riscos
 classificacao_dict <- c("A" = "Low Risk",
@@ -35,6 +50,16 @@ classificacao_dict <- c("A" = "Low Risk",
                         "C" = "High Risk",
                         "D" ="In Default")
 df$classificacao <- classificacao_dict[match(df$classificacao, names(classificacao_dict))]
+#----
+#grafico de barras da distribuição do risco
+#########################
+indice1 <- reorder(df$classificacao, 
+                            df$classificacao, function(x) -length(x))
+barplot(table(indice1), 
+        main="Contagem de classificação por tipo", 
+        xlab="Indice de Risco", 
+        ylab="Contagem", col=c("blue","green","yellow","orange","red"))
+
 
 #teste de algoritmo - preparando as amostras de treino.
 set.seed(12)
@@ -64,9 +89,9 @@ recall_arvores <- mc_arvores$byClass["Recall"]
 f1_arvores <- mc_arvores$byClass["F1"]
 metricas_arvores <- c(acuracia_arvores, precisao_arvores, recall_arvores, f1_arvores)
 metricas_arvores
-
-#--------------------------
 #randon forest
+#--------------------------
+
 # ntree: número de árvores
 #Novo dataframe para executar randonforest
 df_rf <- df
